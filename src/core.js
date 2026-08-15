@@ -65,17 +65,54 @@ async function scanGrants(profile, opts = {}) {
 
   log(`Found ${hits.length} candidate opportunities. Fetching full records...`);
 
-  const details = await mapLimit(hits.slice(0, maxResults * 2), 5, (h) => fetchOpportunity(h.id));
+  // Federal APIs tolerate this comfortably and it is the difference between a
+  // page that feels responsive and one a visitor abandons.
+  const wanted = hits.slice(0, maxResults * 2);
+  let fetched = 0;
+  const details = await mapLimit(wanted, 10, async (h) => {
+    const rec = await fetchOpportunity(h.id);
+    if (++fetched % 10 === 0) log(`Fetched ${fetched} of ${wanted.length} full records...`);
+    return rec;
+  });
   const usable = details.filter((d) => d && !d.__error);
   const failed = details.length - usable.length;
   if (failed > 0) log(`${failed} record(s) could not be fetched and were skipped.`);
 
   log(`Evaluating eligibility and scoring ${usable.length} opportunities...`);
 
-  const scored = await mapLimit(usable, 4, async (opp) => {
+  // Pass 1: eligibility + scoring WITHOUT prior-award data. This is pure local
+  // computation over records already in hand, so it costs no network time.
+  const prelim = [];
+  let ineligibleCount = 0;
+  for (const opp of usable) {
     const eligibility = checkEligibility(orgType, opp.applicantTypes);
-    if (eligibility.status === INELIGIBLE && !includeIneligible) return null;
+    if (eligibility.status === INELIGIBLE && !includeIneligible) { ineligibleCount++; continue; }
+    const s = scoreOpportunity(opp, profile, eligibility, null, { minDaysToApply: opts.minDaysToApply });
+    if (s.daysLeft != null && s.daysLeft < 0) continue; // already closed: noise
+    prelim.push({ opp, eligibility, ...s });
+  }
 
+  // Rank provisionally and enrich only the head of the list. Fetching prior
+  // awards for every candidate was the dominant cost - roughly a second each,
+  // for records that were then never displayed. Enriching a margin above the
+  // requested count keeps the final ranking stable when the prior-award signal
+  // shifts a result's score.
+  prelim.sort((a, b) => b.fitScore - a.fitScore);
+  const enrichCount = Math.min(prelim.length, Math.ceil(maxResults * 1.5));
+  const toEnrich = prelim.slice(0, enrichCount);
+
+  const uniqueCfdas = new Set(
+    toEnrich.map((p) => p.opp.cfdaNumbers && p.opp.cfdaNumbers[0]).filter(Boolean)
+  );
+  log(`Looking up prior federal awards for ${uniqueCfdas.size} funding program(s)...`);
+
+  // Warm the shared cache once per CFDA. Many opportunities share a program, so
+  // this collapses duplicate lookups before any scoring depends on them.
+  await mapLimit([...uniqueCfdas], 8, (cfda) => getIncumbents(cfda));
+
+  const scored = await mapLimit(toEnrich, 8, async (p) => {
+    const opp = p.opp;
+    const eligibility = p.eligibility;
     const cfda = opp.cfdaNumbers && opp.cfdaNumbers[0];
     const incumbents = cfda ? await getIncumbents(cfda) : null;
 
@@ -83,7 +120,6 @@ async function scanGrants(profile, opts = {}) {
       opp, profile, eligibility, incumbents, { minDaysToApply: opts.minDaysToApply }
     );
 
-    // Drop already-closed opportunities; they are noise, not results.
     if (daysLeft != null && daysLeft < 0) return null;
 
     return {
@@ -133,7 +169,7 @@ async function scanGrants(profile, opts = {}) {
     strongFit: final.filter((r) => r.band === 'STRONG_FIT').length,
     possibleFit: final.filter((r) => r.band === 'POSSIBLE_FIT').length,
     needsEligibilityReview: final.filter((r) => r.band === 'REVIEW_ELIGIBILITY').length,
-    filteredOutIneligible: usable.length - results.length,
+    filteredOutIneligible: ineligibleCount,
   };
 
   return { results: final, summary };
