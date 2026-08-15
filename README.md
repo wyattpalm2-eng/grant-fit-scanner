@@ -1,5 +1,9 @@
 # Federal Grant Fit Scanner — Grants.gov Eligibility Filter + Prior-Award Intelligence
 
+### ▶ **[Use it free — no signup: wyattpalm2-eng.github.io/grant-fit-scanner](https://wyattpalm2-eng.github.io/grant-fit-scanner/)**
+
+Runs entirely in your browser. No account, no backend, nothing uploaded or stored.
+
 **Stop reading grant announcements you were never allowed to apply for.**
 
 Every other Grants.gov tool hands you a list. This one hands you a *shortlist* — live federal
