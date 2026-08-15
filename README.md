@@ -4,6 +4,8 @@
 
 Runs entirely in your browser. No account, no backend, nothing uploaded or stored.
 
+_Maintainer: to turn on the paid tier, see [ACTIVATE.md](ACTIVATE.md) — 3 steps, ~15 minutes._
+
 **Stop reading grant announcements you were never allowed to apply for.**
 
 Every other Grants.gov tool hands you a list. This one hands you a *shortlist* — live federal
