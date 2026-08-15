@@ -2,7 +2,8 @@
 // so there is no second copy of the scoring logic that can drift out of sync.
 import { scanGrants } from './src/core.js';
 import { ORG_TYPE_TO_CODE } from './src/eligibility.js';
-import { CONFIG, hasPro, hasCrypto } from './config.js';
+import { CONFIG, hasCrypto, hasPro } from './config.js';
+import { makeInvoice, checkPayment, explorerTxUrl } from './src/payments.js';
 
 const ORG_LABELS = {
   nonprofit_501c3: 'Nonprofit with 501(c)(3) status',
@@ -34,8 +35,34 @@ const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const money = (n) => '$' + Math.round(n).toLocaleString();
 
-// Populate org dropdown from the same map the gate uses, so the UI can never
-// offer an option the engine does not understand.
+// ── Unlock state ────────────────────────────────────────────────────────────
+// Kept in localStorage. This is a client-side gate on a static site, which means
+// a determined user with dev tools can bypass it. That is inherent to having no
+// backend and is an accepted trade for a $2 tool - it is not a bug to be hidden.
+// Spent transaction hashes are retained so one payment cannot be replayed.
+const LS_UNLOCK = 'gfs_unlock';
+const LS_SPENT = 'gfs_spent_tx';
+
+const readJson = (key, fallback) => {
+  try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
+};
+
+function getUnlock() {
+  const u = readJson(LS_UNLOCK, null);
+  if (!u || !u.until || Date.now() > u.until) return null;
+  return u;
+}
+function setUnlock(tx) {
+  const until = Date.now() + CONFIG.unlockDays * 86400000;
+  localStorage.setItem(LS_UNLOCK, JSON.stringify({ tx, until }));
+  const spent = readJson(LS_SPENT, []);
+  if (!spent.includes(tx)) spent.push(tx);
+  localStorage.setItem(LS_SPENT, JSON.stringify(spent));
+}
+const spentHashes = () => readJson(LS_SPENT, []);
+const paywallActive = () => hasCrypto() && !getUnlock();
+
+// ── Populate org dropdown from the same map the gate uses ───────────────────
 const sel = $('org');
 for (const key of Object.keys(ORG_TYPE_TO_CODE)) {
   const o = document.createElement('option');
@@ -50,6 +77,7 @@ function logLine(msg) {
   $('log').textContent += msg + '\n';
 }
 
+// ── Rendering ───────────────────────────────────────────────────────────────
 function renderSignal(s) {
   const cls = s.points > 0 ? 'p' : s.points < 0 ? 'n' : 'z';
   const pts = s.points > 0 ? `+${s.points}` : String(s.points);
@@ -65,9 +93,7 @@ function renderResult(r) {
   const bits = [];
   if (r.awardCeiling) bits.push(`Ceiling ${money(r.awardCeiling)}`);
   if (r.costSharingRequired) bits.push('Match required');
-  if (r.priorAwards) {
-    bits.push(`Prior median ${money(r.priorAwards.medianAward)} (n=${r.priorAwards.sampleSize})`);
-  }
+  if (r.priorAwards) bits.push(`Prior median ${money(r.priorAwards.medianAward)} (n=${r.priorAwards.sampleSize})`);
 
   return `<div class="res">
     <div class="res-top">
@@ -86,32 +112,125 @@ function renderResult(r) {
   </div>`;
 }
 
-// The paid tier lives on Apify, which already solves billing, cards, and
-// payouts. The free scan above is the discovery layer that feeds it. Both
-// blocks render only when configured, so an unconfigured site shows no dead
-// buttons and no empty promises.
-function renderUpgrade(shown, scanned) {
-  if (!hasPro()) return '';
-  const feats = CONFIG.proFeatures.map((f) => `<li>${esc(f)}</li>`).join('');
-  return `<div class="card upgrade">
-    <h2>Showing ${shown} of ${scanned} scanned</h2>
-    <p>This free scan runs in your browser and caps at ${CONFIG.freeMaxResults} results.
-       The full version runs on Apify and adds:</p>
-    <ul>${feats}</ul>
-    <a class="cta" href="${esc(CONFIG.apifyActorUrl)}" target="_blank" rel="noopener">
-      Run the full scan on Apify</a>
-    <p class="hint" style="margin-top:10px">Pay per use. No subscription, no minimum.
-       Compare: Instrumentl starts at $299/month.</p>
+let currentInvoice = null;
+let lastResults = [];
+let lastSummary = null;
+
+function renderPaywall(lockedCount) {
+  currentInvoice = currentInvoice || makeInvoice(CONFIG.basePrice);
+  const inv = currentInvoice;
+  return `<div class="card upgrade" id="paywall">
+    <h2>${lockedCount} more ${lockedCount === 1 ? 'match' : 'matches'} found</h2>
+    <p>You are seeing the top ${CONFIG.freePreviewResults}. Unlock the full ranked list — and every
+       scan you run for the next ${CONFIG.unlockDays} days — by sending <b>exactly
+       $${inv.amount.toFixed(2)} USDC</b> on ${esc(CONFIG.chain)}.</p>
+
+    <label style="margin-top:14px">Send exactly this amount</label>
+    <div class="paybox"><code id="payamt">${inv.amount.toFixed(2)} USDC</code>
+      <button class="copy" data-copy="${inv.amount.toFixed(2)}">Copy</button></div>
+    <div class="hint">The cents are your payment reference — they are what identifies your
+      transfer. Sending a different amount will not unlock.</div>
+
+    <label style="margin-top:14px">To this address (${esc(CONFIG.chain)})</label>
+    <div class="paybox"><code id="payaddr">${esc(CONFIG.cryptoAddress)}</code>
+      <button class="copy" data-copy="${esc(CONFIG.cryptoAddress)}">Copy</button></div>
+
+    <button class="go" id="verify" style="margin-top:16px">I've sent it — verify payment</button>
+    <div id="paystatus" class="hint" style="margin-top:10px"></div>
+    <p class="hint" style="margin-top:12px">Paid directly to the operator's wallet and verified
+      on-chain in your browser. No account, no card, no processor. Your unlock is stored only in
+      this browser.</p>
   </div>`;
 }
 
-function renderTip() {
-  if (!hasCrypto()) return '';
-  return `<p style="margin-top:14px">This tool is free and always will be. If it saved you time,
-    you can tip in USDC/ETH on ${esc(CONFIG.cryptoNetwork)}:
-    <code style="word-break:break-all">${esc(CONFIG.cryptoAddress)}</code></p>`;
+function renderApify() {
+  if (!hasPro()) return '';
+  const feats = CONFIG.proFeatures.map((f) => `<li>${esc(f)}</li>`).join('');
+  return `<div class="card upgrade"><h2>Need more than this?</h2>
+    <p>The full version runs on Apify and adds:</p><ul>${feats}</ul>
+    <a class="cta" href="${esc(CONFIG.apifyActorUrl)}" target="_blank" rel="noopener">Run it on Apify</a></div>`;
 }
 
+function paint() {
+  const results = lastResults;
+  const summary = lastSummary;
+  if (!results.length) return;
+
+  const counts = { STRONG_FIT: 0, POSSIBLE_FIT: 0, REVIEW_ELIGIBILITY: 0, WEAK_FIT: 0 };
+  for (const r of results) counts[r.band]++;
+  const pills = Object.entries(counts).filter(([, n]) => n > 0)
+    .map(([b, n]) => `<span class="pill ${b}">${n} ${BAND_LABEL[b].toLowerCase()}</span>`).join('');
+
+  const locked = paywallActive();
+  const shown = locked ? results.slice(0, CONFIG.freePreviewResults) : results;
+  const hidden = results.length - shown.length;
+
+  const unlockNote = !locked && hasCrypto() && getUnlock()
+    ? `<div class="hint" style="color:var(--strong)">Unlocked — full results, all scans, until ${
+        new Date(getUnlock().until).toLocaleDateString()}.</div>` : '';
+
+  $('out').innerHTML = `<div class="card">
+      <div class="summary">${pills}</div>
+      <div class="hint">Scanned ${summary.scanned} live opportunities${
+        summary.filteredOutIneligible > 0
+          ? `, filtered out ${summary.filteredOutIneligible} your organization type cannot apply for`
+          : ''}.</div>
+      ${unlockNote}
+    </div>`
+    + shown.map(renderResult).join('')
+    + (hidden > 0 ? renderPaywall(hidden) : '')
+    + renderApify();
+
+  wirePaywall();
+}
+
+function wirePaywall() {
+  document.querySelectorAll('.copy').forEach((b) => {
+    b.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(b.dataset.copy);
+        const old = b.textContent; b.textContent = 'Copied';
+        setTimeout(() => { b.textContent = old; }, 1400);
+      } catch { /* clipboard blocked; the value is visible and selectable anyway */ }
+    });
+  });
+
+  const v = $('verify');
+  if (!v) return;
+  v.addEventListener('click', async () => {
+    const status = $('paystatus');
+    v.disabled = true;
+    v.textContent = 'Checking the blockchain…';
+    status.textContent = '';
+    try {
+      const hit = await checkPayment({
+        address: CONFIG.cryptoAddress,
+        chain: CONFIG.chain,
+        invoice: currentInvoice,
+        usedHashes: spentHashes(),
+      });
+      if (hit) {
+        setUnlock(hit.tx);
+        status.innerHTML = `Payment confirmed — <a href="${esc(explorerTxUrl(CONFIG.chain, hit.tx))}"
+          target="_blank" rel="noopener">view transaction</a>. Unlocking…`;
+        setTimeout(paint, 900);
+      } else {
+        status.textContent =
+          `No matching payment found yet. Transfers usually confirm within a few seconds — ` +
+          `wait a moment and check again. The amount must be exactly ` +
+          `$${currentInvoice.amount.toFixed(2)} USDC on ${CONFIG.chain}.`;
+        v.disabled = false;
+        v.textContent = "I've sent it — verify payment";
+      }
+    } catch (err) {
+      status.textContent = `Could not verify: ${err.message}`;
+      v.disabled = false;
+      v.textContent = "I've sent it — verify payment";
+    }
+  });
+}
+
+// ── Scan ────────────────────────────────────────────────────────────────────
 async function run() {
   const btn = $('go');
   btn.disabled = true;
@@ -133,6 +252,9 @@ async function run() {
       log: logLine,
     });
 
+    lastResults = results;
+    lastSummary = summary;
+
     if (!results.length) {
       $('out').innerHTML = `<div class="card"><div class="err">
         <b>No matching opportunities.</b> That is a real result, not an error — it usually means your
@@ -140,22 +262,7 @@ async function run() {
         posted. Try fewer or broader keywords.</div></div>`;
       return;
     }
-
-    const counts = { STRONG_FIT: 0, POSSIBLE_FIT: 0, REVIEW_ELIGIBILITY: 0, WEAK_FIT: 0 };
-    for (const r of results) counts[r.band]++;
-
-    const pills = Object.entries(counts).filter(([, n]) => n > 0)
-      .map(([b, n]) => `<span class="pill ${b}">${n} ${BAND_LABEL[b].toLowerCase()}</span>`).join('');
-
-    $('out').innerHTML = `<div class="card">
-        <div class="summary">${pills}</div>
-        <div class="hint">Scanned ${summary.scanned} live opportunities${
-          summary.filteredOutIneligible > 0
-            ? `, filtered out ${summary.filteredOutIneligible} your organization type cannot apply for`
-            : ''}.</div>
-      </div>`
-      + results.map(renderResult).join('')
-      + renderUpgrade(results.length, summary.scanned);
+    paint();
   } catch (err) {
     $('out').innerHTML = `<div class="card"><div class="err">
       <b>Scan failed.</b> ${esc(err.message)}<br>
@@ -168,7 +275,3 @@ async function run() {
 }
 
 $('go').addEventListener('click', run);
-
-// Tip link renders into the footer only when an address is configured.
-const tipHtml = renderTip();
-if (tipHtml) document.querySelector('footer').insertAdjacentHTML('beforeend', tipHtml);
