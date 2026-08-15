@@ -46,6 +46,14 @@ function scoreOpportunity(opp, profile, eligibility, incumbents, opts = {}) {
       add('Long runway', 12,
         `${daysLeft} days until close — ample time, though far-off deadlines often mean rolling or recurring programs.`);
     }
+  } else if (opp.oppStatus === 'forecasted') {
+    // A forecasted opportunity has no close date because it has not opened yet.
+    // That is not missing data - it is the planning window, and it is the single
+    // best time to start preparing. Scoring it as "unknown" buried these below
+    // everything else and made the include-forecasted toggle look broken.
+    add('Forecasted — not open yet', 15,
+      'Agency has announced this but not opened it. You have lead time to prepare before it posts.' +
+      (opp.closeDateNote ? ` Agency note: "${String(opp.closeDateNote).slice(0, 100)}"` : ''));
   } else {
     add('Close date unknown', 0,
       'No structured close date published. Treat timing as unverified.' +

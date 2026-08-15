@@ -47,7 +47,12 @@ async function scanGrants(profile, opts = {}) {
   // Filter server-side by the org's own eligibility code so we never pay to
   // download opportunities the organization is barred from.
   log(`Searching Grants.gov for applicant type ${myCode} (${orgType})...`);
+  // Forecasted opportunities are not yet open, so they carry no close date.
+  // They are the ones worth preparing for in advance, which is exactly the
+  // planning window a grant writer wants.
+  const oppStatuses = opts.includeForecasted ? 'posted|forecasted' : 'posted';
   const searchOpts = {
+    oppStatuses,
     keyword,
     agencies: profile.agencies || undefined,
     fundingCategories: profile.fundingCategories || undefined,
@@ -65,12 +70,17 @@ async function scanGrants(profile, opts = {}) {
 
   log(`Found ${hits.length} candidate opportunities. Fetching full records...`);
 
+  // Only the search hit carries oppStatus; the detail record does not. Keep it
+  // so scoring can tell "forecasted, not open yet" from "close date missing".
+  const statusById = new Map(hits.map((h) => [String(h.id), h.oppStatus]));
+
   // Federal APIs tolerate this comfortably and it is the difference between a
   // page that feels responsive and one a visitor abandons.
   const wanted = hits.slice(0, maxResults * 2);
   let fetched = 0;
   const details = await mapLimit(wanted, 10, async (h) => {
     const rec = await fetchOpportunity(h.id);
+    if (rec) rec.oppStatus = statusById.get(String(h.id)) || null;
     if (++fetched % 10 === 0) log(`Fetched ${fetched} of ${wanted.length} full records...`);
     return rec;
   });
@@ -132,6 +142,7 @@ async function scanGrants(profile, opts = {}) {
       title: opp.title,
       agency: opp.agencyName,
       closeDate: opp.closeDate ? opp.closeDate.toISOString().slice(0, 10) : null,
+      oppStatus: opp.oppStatus || null,
       awardFloor: opp.awardFloor,
       awardCeiling: opp.awardCeiling,
       costSharingRequired: opp.costSharingRequired,

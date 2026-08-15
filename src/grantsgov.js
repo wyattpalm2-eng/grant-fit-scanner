@@ -56,7 +56,7 @@ async function postJson(url, body, { retries = 3, timeoutMs = 30000 } = {}) {
  * Search open opportunities, filtered server-side by the applicant's own
  * eligibility code so we do not pay to download grants the org cannot win.
  */
-async function searchOpportunities({ keyword, eligibilityCode, agencies, fundingCategories, maxResults = 100 }) {
+async function searchOpportunities({ keyword, eligibilityCode, agencies, fundingCategories, maxResults = 100, oppStatuses = 'posted' }) {
   const rowsPerPage = 100;
   const out = [];
   let start = 0;
@@ -66,7 +66,7 @@ async function searchOpportunities({ keyword, eligibilityCode, agencies, funding
       rows: Math.min(rowsPerPage, maxResults - out.length),
       startRecordNum: start,
       keyword: keyword || '',
-      oppStatuses: 'posted',
+      oppStatuses,
     };
     if (eligibilityCode) payload.eligibilities = eligibilityCode;
     if (agencies) payload.agencies = agencies;

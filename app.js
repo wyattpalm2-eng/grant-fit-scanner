@@ -86,9 +86,11 @@ function renderSignal(s) {
 }
 
 function renderResult(r) {
-  const deadline = r.daysUntilDeadline == null
-    ? 'No published close date'
-    : `<b>${r.daysUntilDeadline} days</b> left${r.closeDate ? ` &middot; closes ${esc(r.closeDate)}` : ''}`;
+  const deadline = r.oppStatus === 'forecasted'
+    ? '<b>Forecasted</b> — not open yet, prepare early'
+    : r.daysUntilDeadline == null
+      ? 'No published close date'
+      : `<b>${r.daysUntilDeadline} days</b> left${r.closeDate ? ` &middot; closes ${esc(r.closeDate)}` : ''}`;
 
   const bits = [];
   if (r.awardCeiling) bits.push(`Ceiling ${money(r.awardCeiling)}`);
@@ -112,6 +114,30 @@ function renderResult(r) {
   </div>`;
 }
 
+function toCsv(rows) {
+  const cols = ['fitScore','band','eligibility','daysUntilDeadline','closeDate','opportunityNumber',
+    'title','agency','awardFloor','awardCeiling','costSharingRequired','cfdaNumbers',
+    'contactEmail','url','eligibilityReason'];
+  const cell = (v) => {
+    if (v == null) return '';
+    const s = Array.isArray(v) ? v.join('; ') : String(v);
+    return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  };
+  return [cols.join(',')]
+    .concat(rows.map((r) => cols.map((c) => cell(r[c])).join(',')))
+    .join('\r\n');
+}
+
+function downloadCsv(rows) {
+  // Leading BOM so Excel opens it as UTF-8 rather than mangling agency names.
+  const blob = new Blob(['﻿' + toCsv(rows)], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `federal-grants-${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+
 let currentInvoice = null;
 let lastResults = [];
 let lastSummary = null;
@@ -121,9 +147,9 @@ function renderPaywall(lockedCount) {
   const inv = currentInvoice;
   return `<div class="card upgrade" id="paywall">
     <h2>${lockedCount} more ${lockedCount === 1 ? 'match' : 'matches'} found</h2>
-    <p>You are seeing the top ${CONFIG.freePreviewResults}. Unlock the full ranked list — and every
-       scan you run for the next ${CONFIG.unlockDays} days — by sending <b>exactly
-       $${inv.amount.toFixed(2)} USDC</b> on ${esc(CONFIG.chain)}.</p>
+    <p>You are seeing the top ${CONFIG.freePreviewResults}. Unlock the full ranked list,
+       <b>CSV export</b>, and every scan you run for the next ${CONFIG.unlockDays} days — by sending
+       <b>exactly $${inv.amount.toFixed(2)} USDC</b> on ${esc(CONFIG.chain)}.</p>
 
     <label style="margin-top:14px">Send exactly this amount</label>
     <div class="paybox"><code id="payamt">${inv.amount.toFixed(2)} USDC</code>
@@ -165,9 +191,16 @@ function paint() {
   const shown = locked ? results.slice(0, CONFIG.freePreviewResults) : results;
   const hidden = results.length - shown.length;
 
-  const unlockNote = !locked && hasCrypto() && getUnlock()
+  const unlocked = !locked && hasCrypto() && getUnlock();
+  const unlockNote = unlocked
     ? `<div class="hint" style="color:var(--strong)">Unlocked — full results, all scans, until ${
-        new Date(getUnlock().until).toLocaleDateString()}.</div>` : '';
+        new Date(unlocked.until).toLocaleDateString()}.</div>` : '';
+
+  // Export is available whenever nothing is gated: either the operator has not
+  // configured payments at all, or this visitor has unlocked.
+  const exportBtn = !locked
+    ? `<button class="copy" id="csv" style="margin-top:12px">Export ${results.length} results to CSV</button>`
+    : '';
 
   $('out').innerHTML = `<div class="card">
       <div class="summary">${pills}</div>
@@ -176,6 +209,7 @@ function paint() {
           ? `, filtered out ${summary.filteredOutIneligible} your organization type cannot apply for`
           : ''}.</div>
       ${unlockNote}
+      ${exportBtn}
     </div>`
     + shown.map(renderResult).join('')
     + (hidden > 0 ? renderPaywall(hidden) : '')
@@ -185,7 +219,10 @@ function paint() {
 }
 
 function wirePaywall() {
-  document.querySelectorAll('.copy').forEach((b) => {
+  const csv = $('csv');
+  if (csv) csv.addEventListener('click', () => downloadCsv(lastResults));
+
+  document.querySelectorAll('.copy:not(#csv)').forEach((b) => {
     b.addEventListener('click', async () => {
       try {
         await navigator.clipboard.writeText(b.dataset.copy);
@@ -249,6 +286,7 @@ async function run() {
     const { results, summary } = await scanGrants(profile, {
       maxResults: CONFIG.freeMaxResults,
       minDaysToApply: Number($('days').value) || 14,
+      includeForecasted: $('forecast').checked,
       log: logLine,
     });
 
