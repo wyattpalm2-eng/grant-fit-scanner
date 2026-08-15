@@ -2,6 +2,7 @@
 // so there is no second copy of the scoring logic that can drift out of sync.
 import { scanGrants } from './src/core.js';
 import { ORG_TYPE_TO_CODE } from './src/eligibility.js';
+import { CONFIG, hasPro, hasCrypto } from './config.js';
 
 const ORG_LABELS = {
   nonprofit_501c3: 'Nonprofit with 501(c)(3) status',
@@ -85,6 +86,32 @@ function renderResult(r) {
   </div>`;
 }
 
+// The paid tier lives on Apify, which already solves billing, cards, and
+// payouts. The free scan above is the discovery layer that feeds it. Both
+// blocks render only when configured, so an unconfigured site shows no dead
+// buttons and no empty promises.
+function renderUpgrade(shown, scanned) {
+  if (!hasPro()) return '';
+  const feats = CONFIG.proFeatures.map((f) => `<li>${esc(f)}</li>`).join('');
+  return `<div class="card upgrade">
+    <h2>Showing ${shown} of ${scanned} scanned</h2>
+    <p>This free scan runs in your browser and caps at ${CONFIG.freeMaxResults} results.
+       The full version runs on Apify and adds:</p>
+    <ul>${feats}</ul>
+    <a class="cta" href="${esc(CONFIG.apifyActorUrl)}" target="_blank" rel="noopener">
+      Run the full scan on Apify</a>
+    <p class="hint" style="margin-top:10px">Pay per use. No subscription, no minimum.
+       Compare: Instrumentl starts at $299/month.</p>
+  </div>`;
+}
+
+function renderTip() {
+  if (!hasCrypto()) return '';
+  return `<p style="margin-top:14px">This tool is free and always will be. If it saved you time,
+    you can tip in USDC/ETH on ${esc(CONFIG.cryptoNetwork)}:
+    <code style="word-break:break-all">${esc(CONFIG.cryptoAddress)}</code></p>`;
+}
+
 async function run() {
   const btn = $('go');
   btn.disabled = true;
@@ -101,7 +128,7 @@ async function run() {
 
   try {
     const { results, summary } = await scanGrants(profile, {
-      maxResults: 25,
+      maxResults: CONFIG.freeMaxResults,
       minDaysToApply: Number($('days').value) || 14,
       log: logLine,
     });
@@ -126,7 +153,9 @@ async function run() {
           summary.filteredOutIneligible > 0
             ? `, filtered out ${summary.filteredOutIneligible} your organization type cannot apply for`
             : ''}.</div>
-      </div>` + results.map(renderResult).join('');
+      </div>`
+      + results.map(renderResult).join('')
+      + renderUpgrade(results.length, summary.scanned);
   } catch (err) {
     $('out').innerHTML = `<div class="card"><div class="err">
       <b>Scan failed.</b> ${esc(err.message)}<br>
@@ -139,3 +168,7 @@ async function run() {
 }
 
 $('go').addEventListener('click', run);
+
+// Tip link renders into the footer only when an address is configured.
+const tipHtml = renderTip();
+if (tipHtml) document.querySelector('footer').insertAdjacentHTML('beforeend', tipHtml);
