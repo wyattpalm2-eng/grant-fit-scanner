@@ -4,7 +4,11 @@
 
 Runs entirely in your browser. No account, no backend, nothing uploaded or stored.
 
-_Maintainer: to turn on the paid tier, see [ACTIVATE.md](ACTIVATE.md) — 3 steps, ~15 minutes._
+Top 5 matches free. Unlock the full ranked list for **$2 in USDC** — paid directly to the
+operator's wallet and verified on-chain in your browser. No account, no card, no processor.
+
+_Maintainer: payment setup and wallet notes are in [CRYPTO.md](CRYPTO.md); the card-payment
+alternative is in [ACTIVATE.md](ACTIVATE.md)._
 
 **Stop reading grant announcements you were never allowed to apply for.**
 

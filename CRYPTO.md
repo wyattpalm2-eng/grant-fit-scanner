@@ -1,90 +1,72 @@
-# The no-KYC path — how it works and what it costs you
+# Crypto payments — LIVE
 
-You asked for crypto instead of KYC. It's built. Here is the honest accounting.
+**Status: live and taking payments** at https://wyattpalm2-eng.github.io/grant-fit-scanner/
 
-## What's built
+No KYC. No payment processor. No backend. No account anywhere. Buyers send USDC straight to your
+wallet and the browser proves it landed.
 
-`server/server.js` puts the scanner behind an x402 paywall. USDC on Base settles **directly to
-your wallet**. No account, no identity verification, no marketplace, no payout approval, nobody
-who can freeze it.
+## How it works
 
-- `GET /demo/scan` — **free**, no wallet needed, 1/hour per IP, top 3 results
-- `GET /scan` — **paid**, $0.05 per call in USDC
-- `GET /` — machine-readable manifest for discovery crawlers
+1. Visitor runs a free scan and sees the top 5 ranked matches.
+2. The rest are gated behind an invoice for a **unique amount** — e.g. `$2.45 USDC`.
+3. They send exactly that to your address on Base.
+4. Their browser queries a public block explorer, finds the matching transfer, and unlocks
+   full results for 30 days.
 
-Verified by `npm run prove:server` (22 checks passing):
-- Every case and slash variant of the paid path is correctly gated
-- `HEAD` on paid routes returns 405 and cannot mint a phantom sale
-- With `PAY_TO` unset the paid route **fails closed** (503) rather than serving free
-- Free tier works with no wallet configured and still carries full evidence
-- The index honestly reports `paywall_active: false` when unconfigured
+**The unique cents are the whole mechanism.** Without a backend there is no session to attach a
+payment to, so a fixed price could not tell two concurrent buyers apart. Varying the cents makes
+each transfer self-identifying — the same trick bank-transfer checkouts have always used.
 
-## Deploy
+## Your wallet
 
-```bash
-cd "C:\Users\ClawBot\grant-fit-scanner" && npm install && npm run prove:server
-```
+Currently `0x26e967c1e708aC62Ebe6BF66f51061E555fc6ebd`, set in [`config.js`](config.js).
 
-Push to GitHub, connect the repo to Render (free tier, needs only an email and GitHub — **no
-KYC**), and set one environment variable:
+Chosen because it is *verified* controllable: the private key is in `x402-seller/wallet.json` on
+this machine, and that file is gitignored and was never committed — checked deliberately, since
+the x402-seller repo is public.
 
-```
-PAY_TO = your Base receive address
-```
+**Two things to act on:**
+1. It is an auto-generated hot wallet with a plaintext private key on a single machine. Fine for
+   small revenue. Move to a wallet you actively custody before a real balance builds up.
+2. To change it, edit one line in `config.js` and push. Nothing else needs touching.
 
-**Set that address deliberately.** `wallet.json` in `x402-seller` holds
-`0x26e967c1e708aC62Ebe6BF66f51061E555fc6ebd`, which is *not* the address recorded in your notes
-(`0x72B944dA66263bE35c2a2eDFeF5c525d58fa53Df`). Paying to the wrong one sends revenue somewhere
-you may not control. Confirm which key you actually hold before you set it.
+## What is verified
 
-Once deployed it runs unattended. Nothing on this machine needs to stay on.
+`npm run prove:payments` — 20 adversarial tests, every one an attempt to unlock **without paying**:
 
-## What this costs you, stated plainly
+- underpayment by a single cent → rejected
+- any other amount → rejected (the cents are the reference)
+- transfer sent to a different address → rejected
+- worthless look-alike token of the same face value → rejected
+- transfer that predates the invoice → rejected (no claiming old payments)
+- replay of an already-spent transaction → rejected, case-insensitively
+- missing transaction hash, empty list, null list → unlock nothing
 
-**1. It does not fix discovery — it re-enters the loop that already failed.**
+Confirmed live: clicking "verify payment" with no payment sent does **not** unlock and stores
+nothing.
 
-This is architecturally the same thing x402-seller was: no KYC, USDC to your wallet, working
-paywall. That earned $0. Not because the rail was broken, but because it was absent from PayAI's
-index (0 of 25,018) and Coinbase Bazaar (0 of 14,381) — and Bazaar indexes on *settled payments*.
-No revenue → no indexing → no discovery → no revenue.
+## The honest limitation
 
-The free tier is the only lever against this, which is why it exists and why it needs no wallet.
-It is the single most important line of code in the server.
+This is a client-side gate on a static site. Someone comfortable with browser dev tools can bypass
+it. That is inherent to having no backend — there is no server to hold the results back. For a $2
+tool it is an acceptable trade, and it is documented rather than hidden.
 
-**2. Your buyers don't hold crypto.**
+If bypass ever costs real money, the fix is `server/server.js` (below), where the results never
+leave the server until payment settles.
 
-This is the bigger problem and it's new. The market research that justified building this at all
-was nonprofits and grant consultants paying $29–$999/month. Those are 501(c)(3) finance officers
-and freelance grant writers. Approximately none of them hold USDC on Base or can pay an x402
-invoice. Going crypto-only doesn't just change how you get paid — it discards the audience whose
-willingness to pay was the entire reason this product looked good.
+## Server alternative (x402, if you outgrow the static gate)
 
-The x402-native audience is AI agents. Agents don't apply for federal grants.
+`server/server.js` implements a real x402 paywall — the buyer cannot obtain results at all without
+settling. Deploys to Render's free tier with only an email and GitHub, still no KYC. Set `PAY_TO`
+and run. Verified by `npm run prove:server` (22 checks), including the HEAD-request guard that
+previously let crawlers manufacture 44 phantom sales.
 
-**3. You still owe tax on it.** The rail changes; the income doesn't.
+## Still true, and worth remembering
 
-## The actual fork
+Crypto payment removes the KYC step but not the demand problem. Nonprofit finance officers and
+grant writers overwhelmingly do not hold USDC, so expect low conversion from the audience this
+product was built for. The free tier exists precisely because of that: it is the discovery layer,
+it costs nothing to run, and it is what search engines and shared links land on.
 
-| | Apify (KYC) | x402 (no KYC) |
-|---|---|---|
-| Your setup | ~10 min, once | Deploy + set an address |
-| Payment rail | Cards, handled for you | USDC to your wallet |
-| Discovery | Store SEO + marketplace traffic | You build it from zero |
-| Can your buyers pay? | **Yes** | **Almost none of them** |
-| Precedent | Untested here | **Tried, earned $0** |
-
-Both are built. Both work. `setup.ps1` ships the Apify path, `server/server.js` ships the crypto
-path, and the scanner underneath is identical.
-
-My read, for what it's worth: ten minutes of identity verification is a smaller cost than
-throwing away every customer who was going to pay you. But it's your call and both doors are open.
-
-## If you want crypto to actually work
-
-Then the product has to change to match the rail — the buyer must be crypto-native. That means
-building for agents or traders, not grant seekers. I measured your existing crypto asset for
-exactly this and it came back dead: the rug scorer has no predictive power (n=1,537, "danger"
-59.1% vs 57.2% base). So that pivot needs a genuinely new product thesis, not a re-skin.
-
-Say the word and I'll go find one. But shipping *this* product on *this* rail is selling to an
-audience that cannot buy.
+The card-payment path (Apify, requires KYC, buyers can actually pay) is still built and one command
+from live if you change your mind — see [ACTIVATE.md](ACTIVATE.md).
