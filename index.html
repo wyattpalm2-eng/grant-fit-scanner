@@ -6,6 +6,35 @@
 <title>Federal Grant Fit Scanner — find grants you can actually win</title>
 <meta name="description" content="Free tool that ranks live Grants.gov opportunities by whether your organization is actually eligible, has time to apply, and can compete — with prior-award data from USAspending.gov.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+<link rel="canonical" href="https://wyattpalm2-eng.github.io/grant-fit-scanner/">
+<meta name="robots" content="index,follow">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://wyattpalm2-eng.github.io/grant-fit-scanner/">
+<meta property="og:title" content="Find federal grants you can actually win">
+<meta property="og:description" content="Free tool that filters live Grants.gov opportunities by whether your organization is actually eligible — plus deadline feasibility and what prior winners really received. No signup.">
+<meta property="og:site_name" content="Federal Grant Fit Scanner">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Find federal grants you can actually win">
+<meta name="twitter:description" content="Filters live Grants.gov by your entity-type eligibility, then ranks by whether you can realistically win. Free, no signup, runs in your browser.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Federal Grant Fit Scanner",
+  "url": "https://wyattpalm2-eng.github.io/grant-fit-scanner/",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Any (browser)",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "description": "Ranks live Grants.gov opportunities by whether your organization can actually win them: a hard eligibility gate on federal applicant-type codes, deadline feasibility, award-size fit, and prior-award data from USAspending.gov.",
+  "featureList": [
+    "Entity-type eligibility gate using federal applicant-type codes",
+    "Deadline feasibility scoring",
+    "Award-size fit against your requested amount",
+    "Prior-award intelligence from USAspending.gov",
+    "Transparent evidence for every score"
+  ]
+}
+</script>
 <style>
   :root{
     --bg:#f7f8fa; --card:#fff; --ink:#15171a; --muted:#5c6470; --line:#e3e6ea;
@@ -83,6 +112,12 @@
   .upgrade li{margin-bottom:5px}
   .upgrade a.cta{display:inline-block;padding:12px 20px;background:var(--accent);
     color:var(--accent-ink);text-decoration:none;border-radius:8px;font-weight:600}
+  .faq{margin-top:40px}
+  .faq h2{font-size:22px;margin:0 0 18px;letter-spacing:-.01em}
+  .faq h3{font-size:16.5px;margin:22px 0 6px}
+  .faq p{margin:0;color:var(--muted);font-size:15px}
+  .faq code{font-size:13px;background:var(--weak-bg);padding:1px 5px;border-radius:4px;color:var(--ink)}
+  .faq a{color:var(--accent)}
   footer code{font-size:12.5px;background:var(--weak-bg);padding:2px 6px;border-radius:4px}
 </style>
 </head>
@@ -127,6 +162,55 @@
 
   <div class="card" id="logcard" hidden><div id="log"></div></div>
   <div id="out"></div>
+
+
+  <section class="faq">
+    <h2>Common questions</h2>
+
+    <h3>Is there a free way to search federal grants?</h3>
+    <p>Yes. <a href="https://www.grants.gov/" target="_blank" rel="noopener">Grants.gov</a> is the
+    official federal source and it is free. The problem is not access, it is volume — it lists
+    thousands of open opportunities and most of them your organization is not permitted to apply
+    for. This tool is free too, and its job is to cut that list down to what you are actually
+    eligible to submit.</p>
+
+    <h3>How do I know if my nonprofit is eligible for a federal grant?</h3>
+    <p>Every opportunity on Grants.gov carries structured <strong>applicant-type codes</strong>.
+    A 501(c)(3) nonprofit is code <code>12</code>; a nonprofit without 501(c)(3) status is
+    <code>13</code>; a small business is <code>23</code>; a public university is <code>06</code>;
+    a federally recognized tribal government is <code>07</code>; <code>99</code> means unrestricted.
+    If your code is not listed, you generally cannot apply. This scanner filters on those codes
+    directly, which is why a nonprofit and a small business searching the same database get almost
+    entirely different results.</p>
+
+    <h3>What does "Others — see text" mean on a grant listing?</h3>
+    <p>Code <code>25</code>. It means eligibility depends on prose in the announcement rather than
+    the structured data, so it cannot be resolved mechanically. This tool marks those
+    <em>Review eligibility</em> instead of guessing. Any tool that tells you you are definitely
+    eligible for a code-25 opportunity is guessing.</p>
+
+    <h3>How can I tell how competitive a grant program is?</h3>
+    <p>Look at what the program has actually awarded before.
+    <a href="https://www.usaspending.gov/" target="_blank" rel="noopener">USAspending.gov</a>
+    publishes every federal award by CFDA program number, free. If the median prior award is
+    $40M and you are requesting $150K, you are competing against major research institutions —
+    that is a mismatch no amount of proposal quality fixes. This scanner pulls that number for
+    every result automatically.</p>
+
+    <h3>Is this an alternative to Instrumentl or GrantWatch?</h3>
+    <p>Partly. Paid platforms like Instrumentl (from $299/month) also cover private foundation
+    grants, pipeline tracking, and reporting, which this does not. What this does is the federal
+    discovery and eligibility-filtering piece, free, with no signup. If you are a small
+    organization whose grant budget cannot absorb a $3,588 annual subscription, start here.</p>
+
+    <h3>Does this cover state, local, or foundation grants?</h3>
+    <p>Not yet — federal opportunities on Grants.gov only. State, local, and private foundation
+    funding are separate databases.</p>
+
+    <h3>Is my data stored anywhere?</h3>
+    <p>No. Everything runs in your browser and talks directly to the federal APIs. There is no
+    backend, no account, no logging, and nothing is uploaded.</p>
+  </section>
 
   <footer>
     <p><b>How the score works.</b> Eligibility 25 + deadline 20 + award fit 15 + cost share 5 +

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://wyattpalm2-eng.github.io/grant-fit-scanner/sitemap.xml
