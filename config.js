@@ -20,7 +20,17 @@ export const CONFIG = {
   //   0x72B944dA66263bE35c2a2eDFeF5c525d58fa53Df  - recorded in project notes,
   //       presumably set as PAY_TO in the Render environment
   // If neither is a wallet you actually control, use your own address instead.
-  cryptoAddress: '',
+  //
+  // SET TO 0x26e967... because it is *verified* controllable: its private key is
+  // in x402-seller/wallet.json on this machine, and that file is gitignored and
+  // was never committed, so the key is not exposed despite the repo being public.
+  //
+  // Two caveats worth acting on:
+  //  1. It is an auto-generated hot wallet with a plaintext key on one machine.
+  //     Fine for small revenue; move to a wallet you actively custody before
+  //     any real balance accumulates.
+  //  2. Change this line to any address you prefer - nothing else needs editing.
+  cryptoAddress: '0x26e967c1e708aC62Ebe6BF66f51061E555fc6ebd',
 
   // 'base' is the right default: USDC transfers cost a fraction of a cent.
   // Also supported: 'ethereum', 'optimism'.
