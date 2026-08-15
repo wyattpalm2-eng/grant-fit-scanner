@@ -40,12 +40,14 @@ async function main() {
 
   // ---------- Live: two different orgs must get different answers ----------
   log('\n=== LIVE SCAN: small business (health tech) ===');
+  const t0 = Date.now();
   const biz = await scanGrants({
     organizationType: 'small_business',
     focusKeywords: ['health', 'technology'],
     requestedAmount: 250000,
     canCostShare: false,
   }, { maxResults: 10, log });
+  const scanSeconds = (Date.now() - t0) / 1000;
 
   log(`  summary: ${JSON.stringify(biz.summary)}`);
   for (const r of biz.results.slice(0, 3)) {
@@ -103,6 +105,13 @@ async function main() {
 
   const eligOk = biz.results.every((r) => r.eligibility !== 'INELIGIBLE');
   assert(eligOk, 'No INELIGIBLE opportunities leaked into default results');
+
+  // Latency is a correctness property for anything a person waits on. This scan
+  // once took 43 seconds while every assertion above still passed - correctness
+  // tests cannot catch "nobody would wait for this". 15s is a generous ceiling
+  // that still fails loudly if per-opportunity network work creeps back in.
+  assert(scanSeconds < 15,
+    `Scan completed in ${scanSeconds.toFixed(1)}s, under the 15s usability ceiling`);
 
   log(`\n${failures === 0 ? 'ALL CHECKS PASSED' : failures + ' CHECK(S) FAILED'}`);
   process.exit(failures === 0 ? 0 : 1);
