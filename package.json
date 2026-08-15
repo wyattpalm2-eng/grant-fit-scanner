@@ -1,0 +1,23 @@
+{
+  "name": "grant-fit-scanner",
+  "version": "1.0.0",
+  "description": "Ranks live federal grant opportunities by whether your organization can actually win them.",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "node src/main.js",
+    "prove": "node test/prove.js",
+    "prove:server": "node test/prove-server.js",
+    "serve": "node server/server.js"
+  },
+  "dependencies": {
+    "apify": "^3.2.6",
+    "express": "^4.21.2",
+    "@x402/core": "^2.19.0",
+    "@x402/evm": "^2.19.0",
+    "@x402/express": "^2.19.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "type": "module"
+}

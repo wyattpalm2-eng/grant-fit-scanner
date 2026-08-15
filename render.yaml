@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: grant-fit-scanner
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server/server.js
+    healthCheckPath: /health
+    envVars:
+      - key: PAY_TO
+        sync: false          # your Base receive address - set in the dashboard
+      - key: X402_PRICE
+        value: "$0.05"
+      - key: X402_NETWORK
+        value: eip155:8453

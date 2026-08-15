@@ -1,0 +1,337 @@
+[
+  {
+    "fitScore": 79,
+    "band": "STRONG_FIT",
+    "eligibility": "ELIGIBLE",
+    "eligibilityReason": "Opportunity explicitly lists \"Nonprofits having a 501(c)(3) status with the IRS\" (code 12) as an eligible applicant.",
+    "daysUntilDeadline": 55,
+    "opportunityNumber": "RFA-DK-27-121",
+    "title": "Optimal Treatment Strategies for use of Anti-Obesity Medications (AOMs) in Children and Adolescents Clinical Centers (U01 Clinical Trial Required)",
+    "agency": "National Institutes of Health",
+    "closeDate": "2026-10-09",
+    "awardFloor": null,
+    "awardCeiling": 1000000,
+    "costSharingRequired": false,
+    "cfdaNumbers": [
+      "93.847"
+    ],
+    "fundingCategories": [
+      "Health"
+    ],
+    "priorAwards": {
+      "medianAward": 69605941.39,
+      "largestAward": 438527853.25,
+      "sampleSize": 25,
+      "topRecipients": [
+        "BENAROYA RESEARCH INSTITUTE AT VIRGINIA MASON",
+        "GEORGE WASHINGTON UNIVERSITY (THE)",
+        "RHO FEDERAL SYSTEMS DIVISION INC",
+        "UNIVERSITY OF SOUTH FLORIDA",
+        "CASE WESTERN RESERVE UNIVERSITY"
+      ]
+    },
+    "whyThisScore": [
+      {
+        "label": "Eligibility confirmed",
+        "points": 25,
+        "evidence": "Opportunity explicitly lists \"Nonprofits having a 501(c)(3) status with the IRS\" (code 12) as an eligible applicant."
+      },
+      {
+        "label": "Comfortable runway",
+        "points": 20,
+        "evidence": "55 days until close."
+      },
+      {
+        "label": "Award size fits your request",
+        "points": 15,
+        "evidence": "Your $150,000 request sits within the published range ceiling $1,000,000."
+      },
+      {
+        "label": "No cost sharing required",
+        "points": 5,
+        "evidence": "Agency does not require matching funds."
+      },
+      {
+        "label": "Mission keywords matched",
+        "points": 14,
+        "evidence": "Matched your terms: youth, mental health."
+      },
+      {
+        "label": "Program is dominated by much larger awards",
+        "points": 0,
+        "evidence": "You want $150,000, under half the $69,605,941 median prior award under CFDA 93.847 (n=25). Recent recipients include BENAROYA RESEARCH INSTITUTE AT VIRGINIA MASON, GEORGE WASHINGTON UNIVERSITY (THE). Expect to compete against much larger institutions."
+      }
+    ],
+    "contactEmail": "voula.osganian@nih.gov",
+    "eligibilityNotes": "Refer to Section III. Eligibility Information in the NOFO for additional information on eligibility.Foreign Organizations/International Collaborations:Non-domestic (non-U.S.) Entities (Foreign Organizations) are not eligible to apply.Non-domestic (non-U.S.) components of U.S. Organizations are not eligible to apply.Foreign components, as defined in the NIH Grants Policy Statement, are not allowed.",
+    "url": "https://www.grants.gov/search-results-detail/360387"
+  },
+  {
+    "fitScore": 64,
+    "band": "POSSIBLE_FIT",
+    "eligibility": "ELIGIBLE",
+    "eligibilityReason": "Opportunity explicitly lists \"Nonprofits having a 501(c)(3) status with the IRS\" (code 12) as an eligible applicant.",
+    "daysUntilDeadline": 55,
+    "opportunityNumber": "RFA-DK-27-136",
+    "title": "Optimal Treatment Strategies for use of Anti-Obesity Medications (AOMs) in Children and Adolescents Research Coordinating Center (U24 Clinical Trial Not Allowed)",
+    "agency": "National Institutes of Health",
+    "closeDate": "2026-10-09",
+    "awardFloor": null,
+    "awardCeiling": null,
+    "costSharingRequired": false,
+    "cfdaNumbers": [
+      "93.847"
+    ],
+    "fundingCategories": [
+      "Health"
+    ],
+    "priorAwards": {
+      "medianAward": 69605941.39,
+      "largestAward": 438527853.25,
+      "sampleSize": 25,
+      "topRecipients": [
+        "BENAROYA RESEARCH INSTITUTE AT VIRGINIA MASON",
+        "GEORGE WASHINGTON UNIVERSITY (THE)",
+        "RHO FEDERAL SYSTEMS DIVISION INC",
+        "UNIVERSITY OF SOUTH FLORIDA",
+        "CASE WESTERN RESERVE UNIVERSITY"
+      ]
+    },
+    "whyThisScore": [
+      {
+        "label": "Eligibility confirmed",
+        "points": 25,
+        "evidence": "Opportunity explicitly lists \"Nonprofits having a 501(c)(3) status with the IRS\" (code 12) as an eligible applicant."
+      },
+      {
+        "label": "Comfortable runway",
+        "points": 20,
+        "evidence": "55 days until close."
+      },
+      {
+        "label": "Award size not comparable",
+        "points": 0,
+        "evidence": "Agency published no award ceiling or floor for this opportunity."
+      },
+      {
+        "label": "No cost sharing required",
+        "points": 5,
+        "evidence": "Agency does not require matching funds."
+      },
+      {
+        "label": "Mission keywords matched",
+        "points": 14,
+        "evidence": "Matched your terms: youth, mental health."
+      },
+      {
+        "label": "Program is dominated by much larger awards",
+        "points": 0,
+        "evidence": "You want $150,000, under half the $69,605,941 median prior award under CFDA 93.847 (n=25). Recent recipients include BENAROYA RESEARCH INSTITUTE AT VIRGINIA MASON, GEORGE WASHINGTON UNIVERSITY (THE). Expect to compete against much larger institutions."
+      }
+    ],
+    "contactEmail": "NIDDK_Obesity@nih.gov",
+    "eligibilityNotes": "Refer to Section III. Eligibility Information in the NOFO for additional information on eligibility.Foreign Organizations/Foreign Collaborations:Non-domestic (non-U.S.) Entities (Foreign Organizations) are not eligible to apply.Non-domestic (non-U.S.) components of U.S. Organizations are not eligible to apply.Foreign components, as defined in the NIH Grants Policy Statement, are not allowed.",
+    "url": "https://www.grants.gov/search-results-detail/360441"
+  },
+  {
+    "fitScore": 64,
+    "band": "POSSIBLE_FIT",
+    "eligibility": "ELIGIBLE",
+    "eligibilityReason": "Opportunity explicitly lists \"Nonprofits having a 501(c)(3) status with the IRS\" (code 12) as an eligible applicant.",
+    "daysUntilDeadline": 510,
+    "opportunityNumber": "PAR-25-291",
+    "title": "Utilizing Invasive Recording and Stimulating Opportunities in Humans to Advance Neural Circuitry Understanding of Mental Health Disorders (R21 Clinical Trial Optional)",
+    "agency": "National Institutes of Health",
+    "closeDate": "2028-01-07",
+    "awardFloor": null,
+    "awardCeiling": 200000,
+    "costSharingRequired": false,
+    "cfdaNumbers": [
+      "93.242"
+    ],
+    "fundingCategories": [
+      "Health"
+    ],
+    "priorAwards": {
+      "medianAward": 49996031.3,
+      "largestAward": 973507476.37,
+      "sampleSize": 25,
+      "topRecipients": [
+        "UNIVERSITY OF CALIFORNIA, LOS ANGELES",
+        "THE JOHNS HOPKINS UNIVERSITY",
+        "PRESIDENT AND FELLOWS OF HARVARD COLLEGE",
+        "RUTGERS, THE STATE UNIVERSITY",
+        "SALK INSTITUTE FOR BIOLOGICAL STUDIES, SAN DIEGO, CALIFORNIA, THE"
+      ]
+    },
+    "whyThisScore": [
+      {
+        "label": "Eligibility confirmed",
+        "points": 25,
+        "evidence": "Opportunity explicitly lists \"Nonprofits having a 501(c)(3) status with the IRS\" (code 12) as an eligible applicant."
+      },
+      {
+        "label": "Long runway",
+        "points": 12,
+        "evidence": "510 days until close — ample time, though far-off deadlines often mean rolling or recurring programs."
+      },
+      {
+        "label": "Award size fits your request",
+        "points": 15,
+        "evidence": "Your $150,000 request sits within the published range ceiling $200,000."
+      },
+      {
+        "label": "No cost sharing required",
+        "points": 5,
+        "evidence": "Agency does not require matching funds."
+      },
+      {
+        "label": "Mission keywords matched",
+        "points": 7,
+        "evidence": "Matched your terms: mental health."
+      },
+      {
+        "label": "Program is dominated by much larger awards",
+        "points": 0,
+        "evidence": "You want $150,000, under half the $49,996,031 median prior award under CFDA 93.242 (n=25). Recent recipients include UNIVERSITY OF CALIFORNIA, LOS ANGELES, THE JOHNS HOPKINS UNIVERSITY. Expect to compete against much larger institutions."
+      }
+    ],
+    "contactEmail": "grantsinfo@nih.gov",
+    "eligibilityNotes": "Other Eligible Applicants include the following:\n Alaska Native and Native Hawaiian Serving Institutions; Asian American Native American Pacific Islander Serving Institutions (AANAPISISs); Eligible Agencies of the Federal Government; Faith-based or Community-based Organizations; Hispanic-serving Institutions; Historically Black Colleges and Universities (HBCUs); Indian/Native American Tribal Governments (Other than Federally Recognized); Non-domestic (non-U.S.) Entities (Foreign Organizations); Regional Organizations; Tribally Controlled Colleges and Universities (TCCUs) ; U.S. Territory or Po",
+    "url": "https://www.grants.gov/search-results-detail/357345"
+  },
+  {
+    "fitScore": 57,
+    "band": "POSSIBLE_FIT",
+    "eligibility": "ELIGIBLE",
+    "eligibilityReason": "Opportunity explicitly lists \"Nonprofits having a 501(c)(3) status with the IRS\" (code 12) as an eligible applicant.",
+    "daysUntilDeadline": 61,
+    "opportunityNumber": "RFA-MH-27-180",
+    "title": "Advancing Research on Empirically-Supported Interventions for Older Adults Living with Serious Mental Illness (SMI) (R01 Clinical Trial Optional)",
+    "agency": "National Institutes of Health",
+    "closeDate": "2026-10-15",
+    "awardFloor": null,
+    "awardCeiling": null,
+    "costSharingRequired": false,
+    "cfdaNumbers": [
+      "93.242"
+    ],
+    "fundingCategories": [
+      "Health"
+    ],
+    "priorAwards": {
+      "medianAward": 49996031.3,
+      "largestAward": 973507476.37,
+      "sampleSize": 25,
+      "topRecipients": [
+        "UNIVERSITY OF CALIFORNIA, LOS ANGELES",
+        "THE JOHNS HOPKINS UNIVERSITY",
+        "PRESIDENT AND FELLOWS OF HARVARD COLLEGE",
+        "RUTGERS, THE STATE UNIVERSITY",
+        "SALK INSTITUTE FOR BIOLOGICAL STUDIES, SAN DIEGO, CALIFORNIA, THE"
+      ]
+    },
+    "whyThisScore": [
+      {
+        "label": "Eligibility confirmed",
+        "points": 25,
+        "evidence": "Opportunity explicitly lists \"Nonprofits having a 501(c)(3) status with the IRS\" (code 12) as an eligible applicant."
+      },
+      {
+        "label": "Comfortable runway",
+        "points": 20,
+        "evidence": "61 days until close."
+      },
+      {
+        "label": "Award size not comparable",
+        "points": 0,
+        "evidence": "Agency published no award ceiling or floor for this opportunity."
+      },
+      {
+        "label": "No cost sharing required",
+        "points": 5,
+        "evidence": "Agency does not require matching funds."
+      },
+      {
+        "label": "Mission keywords matched",
+        "points": 7,
+        "evidence": "Matched your terms: mental health."
+      },
+      {
+        "label": "Program is dominated by much larger awards",
+        "points": 0,
+        "evidence": "You want $150,000, under half the $49,996,031 median prior award under CFDA 93.242 (n=25). Recent recipients include UNIVERSITY OF CALIFORNIA, LOS ANGELES, THE JOHNS HOPKINS UNIVERSITY. Expect to compete against much larger institutions."
+      }
+    ],
+    "contactEmail": "NIMH.DSIR.inquiries@mail.nih.gov",
+    "eligibilityNotes": "Refer to Section III. Eligibility Information in the NOFO for additional information on eligibility.Foreign Organizations/International Collaborations:Non-domestic (non-U.S.) Entities (Foreign Organizations) are eligible to apply.Non-domestic (non-U.S.) components of U.S. Organizations are eligible to apply.Foreign components, as defined in the NIH Grants Policy Statement, are allowed.",
+    "url": "https://www.grants.gov/search-results-detail/359201"
+  },
+  {
+    "fitScore": 57,
+    "band": "POSSIBLE_FIT",
+    "eligibility": "ELIGIBLE",
+    "eligibilityReason": "Opportunity explicitly lists \"Nonprofits having a 501(c)(3) status with the IRS\" (code 12) as an eligible applicant.",
+    "daysUntilDeadline": 68,
+    "opportunityNumber": "RFA-MH-27-140",
+    "title": "Optimizing Behavioral Sleep Interventions for Adolescents and Young Adults (R34 Clinical Trial Required)",
+    "agency": "National Institutes of Health",
+    "closeDate": "2026-10-22",
+    "awardFloor": null,
+    "awardCeiling": null,
+    "costSharingRequired": false,
+    "cfdaNumbers": [
+      "93.242"
+    ],
+    "fundingCategories": [
+      "Health"
+    ],
+    "priorAwards": {
+      "medianAward": 49996031.3,
+      "largestAward": 973507476.37,
+      "sampleSize": 25,
+      "topRecipients": [
+        "UNIVERSITY OF CALIFORNIA, LOS ANGELES",
+        "THE JOHNS HOPKINS UNIVERSITY",
+        "PRESIDENT AND FELLOWS OF HARVARD COLLEGE",
+        "RUTGERS, THE STATE UNIVERSITY",
+        "SALK INSTITUTE FOR BIOLOGICAL STUDIES, SAN DIEGO, CALIFORNIA, THE"
+      ]
+    },
+    "whyThisScore": [
+      {
+        "label": "Eligibility confirmed",
+        "points": 25,
+        "evidence": "Opportunity explicitly lists \"Nonprofits having a 501(c)(3) status with the IRS\" (code 12) as an eligible applicant."
+      },
+      {
+        "label": "Comfortable runway",
+        "points": 20,
+        "evidence": "68 days until close."
+      },
+      {
+        "label": "Award size not comparable",
+        "points": 0,
+        "evidence": "Agency published no award ceiling or floor for this opportunity."
+      },
+      {
+        "label": "No cost sharing required",
+        "points": 5,
+        "evidence": "Agency does not require matching funds."
+      },
+      {
+        "label": "Mission keywords matched",
+        "points": 7,
+        "evidence": "Matched your terms: mental health."
+      },
+      {
+        "label": "Program is dominated by much larger awards",
+        "points": 0,
+        "evidence": "You want $150,000, under half the $49,996,031 median prior award under CFDA 93.242 (n=25). Recent recipients include UNIVERSITY OF CALIFORNIA, LOS ANGELES, THE JOHNS HOPKINS UNIVERSITY. Expect to compete against much larger institutions."
+      }
+    ],
+    "contactEmail": "NIMH.DSIR.inquiries@mail.nih.gov",
+    "eligibilityNotes": "Refer to Section III. Eligibility Information in the NOFO for additional information on eligibility.Foreign Organizations/International Collaborations:Non-domestic (non-U.S.) Entities (Foreign Organizations) are not eligible to apply.Non-domestic (non-U.S.) components of U.S. Organizations are not eligible to apply.Foreign components, as defined in the NIH Grants Policy Statement, are not allowed.",
+    "url": "https://www.grants.gov/search-results-detail/359159"
+  }
+]

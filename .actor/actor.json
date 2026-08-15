@@ -1,0 +1,49 @@
+{
+  "actorSpecification": 1,
+  "name": "federal-grant-fit-scanner",
+  "title": "Federal Grant Fit Scanner — Eligibility + Prior-Award Intel",
+  "description": "Ranks live Grants.gov opportunities by whether your organization can actually win them: hard eligibility gate, deadline feasibility, award-size fit, and who won the money before.",
+  "version": "1.0",
+  "buildTag": "latest",
+  "input": "./input_schema.json",
+  "dockerfile": "../Dockerfile",
+  "storages": {
+    "dataset": {
+      "actorSpecification": 1,
+      "views": {
+        "overview": {
+          "title": "Ranked opportunities",
+          "transformation": {
+            "fields": [
+              "fitScore",
+              "band",
+              "eligibility",
+              "daysUntilDeadline",
+              "title",
+              "agency",
+              "closeDate",
+              "awardCeiling",
+              "costSharingRequired",
+              "url"
+            ]
+          },
+          "display": {
+            "component": "table",
+            "properties": {
+              "fitScore": { "label": "Fit" },
+              "band": { "label": "Verdict" },
+              "eligibility": { "label": "Eligible?" },
+              "daysUntilDeadline": { "label": "Days left" },
+              "title": { "label": "Opportunity" },
+              "agency": { "label": "Agency" },
+              "closeDate": { "label": "Closes" },
+              "awardCeiling": { "label": "Ceiling" },
+              "costSharingRequired": { "label": "Match req." },
+              "url": { "label": "Link" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

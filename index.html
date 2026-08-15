@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Federal Grant Fit Scanner — find grants you can actually win</title>
+<meta name="description" content="Free tool that ranks live Grants.gov opportunities by whether your organization is actually eligible, has time to apply, and can compete — with prior-award data from USAspending.gov.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+<style>
+  :root{
+    --bg:#f7f8fa; --card:#fff; --ink:#15171a; --muted:#5c6470; --line:#e3e6ea;
+    --accent:#1b5e9c; --accent-ink:#fff;
+    --strong:#0f7b4f; --strong-bg:#e6f5ee;
+    --possible:#8a6100; --possible-bg:#fdf3dd;
+    --review:#7a4ea8; --review-bg:#f2ebfa;
+    --weak:#6b7280; --weak-bg:#f0f1f3;
+    --neg:#b3261e;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1216; --card:#171b21; --ink:#e8eaed; --muted:#9aa3af; --line:#272d36;
+      --accent:#4d9fe0; --accent-ink:#0b0e12;
+      --strong:#5cd6a0; --strong-bg:#10291f;
+      --possible:#e8c069; --possible-bg:#2a2313;
+      --review:#c4a2ec; --review-bg:#221a2e;
+      --weak:#9aa3af; --weak-bg:#1c2027;
+      --neg:#ff8a80;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:920px;margin:0 auto;padding:32px 20px 80px}
+  header h1{font-size:30px;line-height:1.2;margin:0 0 8px;letter-spacing:-.02em}
+  header p.sub{margin:0 0 4px;color:var(--muted);font-size:17px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px;margin:24px 0}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:640px){.grid{grid-template-columns:1fr}}
+  label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.03em}
+  input,select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;
+    background:var(--bg);color:var(--ink);font-size:15px;font-family:inherit}
+  input:focus,select:focus{outline:2px solid var(--accent);outline-offset:-1px}
+  .hint{font-size:13px;color:var(--muted);margin-top:6px}
+  .row-check{display:flex;align-items:center;gap:9px;margin-top:14px}
+  .row-check input{width:auto}
+  .row-check label{margin:0;text-transform:none;font-size:15px;font-weight:400;color:var(--ink)}
+  button.go{margin-top:20px;width:100%;padding:14px;border:0;border-radius:8px;
+    background:var(--accent);color:var(--accent-ink);font-size:16px;font-weight:600;cursor:pointer}
+  button.go:disabled{opacity:.55;cursor:default}
+  #log{font:13px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);white-space:pre-wrap}
+  .summary{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+  .pill{padding:5px 11px;border-radius:99px;font-size:13px;font-weight:600}
+  .STRONG_FIT{background:var(--strong-bg);color:var(--strong)}
+  .POSSIBLE_FIT{background:var(--possible-bg);color:var(--possible)}
+  .REVIEW_ELIGIBILITY{background:var(--review-bg);color:var(--review)}
+  .WEAK_FIT{background:var(--weak-bg);color:var(--weak)}
+  .res{border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:14px;background:var(--card)}
+  .res-top{display:flex;gap:14px;align-items:flex-start}
+  .score{flex:0 0 58px;text-align:center}
+  .score b{display:block;font-size:26px;line-height:1;letter-spacing:-.02em}
+  .score span{font-size:11px;color:var(--muted)}
+  .res h3{margin:0 0 6px;font-size:17px;line-height:1.35}
+  .res h3 a{color:var(--ink);text-decoration:none}
+  .res h3 a:hover{text-decoration:underline;color:var(--accent)}
+  .meta{font-size:13.5px;color:var(--muted);margin-bottom:8px}
+  .meta b{color:var(--ink);font-weight:600}
+  details{margin-top:10px}
+  summary{cursor:pointer;font-size:13.5px;color:var(--accent);font-weight:600}
+  .sig{display:flex;gap:10px;font-size:13.5px;padding:7px 0;border-top:1px solid var(--line)}
+  .sig i{flex:0 0 34px;font-style:normal;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+  .sig i.p{color:var(--strong)} .sig i.n{color:var(--neg)} .sig i.z{color:var(--muted)}
+  .sig div b{display:block;font-weight:600}
+  .sig div span{color:var(--muted)}
+  footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--line);
+    font-size:13.5px;color:var(--muted)}
+  footer a{color:var(--accent)}
+  .err{background:var(--possible-bg);color:var(--possible);padding:12px 14px;border-radius:8px;font-size:14.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Find federal grants you can actually win</h1>
+    <p class="sub">Most grant tools hand you a list. This one applies a hard eligibility gate first —
+      so you never read an announcement your organization was never allowed to apply for.</p>
+    <p class="sub" style="font-size:15px">Free. Runs entirely in your browser. Nothing is uploaded or stored.</p>
+  </header>
+
+  <div class="card">
+    <div class="grid">
+      <div>
+        <label for="org">Your organization type</label>
+        <select id="org"></select>
+        <div class="hint">Drives the eligibility gate, using the federal applicant-type codes.</div>
+      </div>
+      <div>
+        <label for="kw">Mission / focus keywords</label>
+        <input id="kw" placeholder="youth, mental health" value="youth, mental health">
+        <div class="hint">Comma separated. Fewer, broader terms return more.</div>
+      </div>
+      <div>
+        <label for="amt">Amount you need (USD)</label>
+        <input id="amt" type="number" min="0" step="1000" value="150000">
+        <div class="hint">Enables award-size fit and comparison to prior winners.</div>
+      </div>
+      <div>
+        <label for="days">Days you need to prepare</label>
+        <input id="days" type="number" min="0" value="14">
+        <div class="hint">Anything closing sooner is flagged as unrealistic.</div>
+      </div>
+    </div>
+    <div class="row-check">
+      <input type="checkbox" id="cost">
+      <label for="cost">We <b>cannot</b> provide matching / cost-share funds</label>
+    </div>
+    <button class="go" id="go">Scan live federal grants</button>
+  </div>
+
+  <div class="card" id="logcard" hidden><div id="log"></div></div>
+  <div id="out"></div>
+
+  <footer>
+    <p><b>How the score works.</b> Eligibility 25 + deadline 20 + award fit 15 + cost share 5 +
+      keyword match 20 + prior-award benchmark 15 = 100. Every point shows the fact that produced it —
+      open “Why this score” on any result. Nothing is scored from missing data: if an opportunity
+      doesn't publish applicant types, you get <i>Review eligibility</i>, never a false green light.</p>
+    <p><b>Data.</b> Live from the
+      <a href="https://www.grants.gov/" target="_blank" rel="noopener">Grants.gov</a> public API and
+      <a href="https://www.usaspending.gov/" target="_blank" rel="noopener">USAspending.gov</a>.
+      Federal opportunities only — not state, local, or private foundation grants.
+      Eligibility here reflects <i>entity type</i>; program-specific rules still live in the announcement.
+      This narrows the field; it does not write the proposal or guarantee an award.</p>
+    <p>U.S. federal open data. Not affiliated with or endorsed by any federal agency.</p>
+  </footer>
+</div>
+<script type="module" src="./app.js"></script>
+</body>
+</html>

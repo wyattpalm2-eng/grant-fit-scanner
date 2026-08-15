@@ -1,0 +1,99 @@
+{
+  "title": "Federal Grant Fit Scanner",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "organizationType": {
+      "title": "Your organization type",
+      "type": "string",
+      "description": "The federal applicant category your organization files under. This drives the hard eligibility gate.",
+      "editor": "select",
+      "default": "nonprofit_501c3",
+      "enum": [
+        "nonprofit_501c3",
+        "nonprofit_other",
+        "small_business",
+        "large_business",
+        "public_university",
+        "private_university",
+        "state_government",
+        "county_government",
+        "city_government",
+        "special_district",
+        "school_district",
+        "tribal_government",
+        "tribal_organization",
+        "housing_authority",
+        "individual"
+      ],
+      "enumTitles": [
+        "Nonprofit with 501(c)(3) status",
+        "Nonprofit without 501(c)(3) status",
+        "Small business",
+        "For-profit (other than small business)",
+        "Public / state-controlled university",
+        "Private university",
+        "State government",
+        "County government",
+        "City or township government",
+        "Special district government",
+        "Independent school district",
+        "Native American tribal government (federally recognized)",
+        "Native American tribal organization (other)",
+        "Public / Indian housing authority",
+        "Individual"
+      ]
+    },
+    "focusKeywords": {
+      "title": "Mission / focus keywords",
+      "type": "array",
+      "description": "Terms describing your work, e.g. [\"housing\", \"youth\", \"mental health\"]. Used to search and to score mission alignment. Fewer, broader terms return more.",
+      "editor": "stringList",
+      "prefill": ["housing", "youth"]
+    },
+    "requestedAmount": {
+      "title": "Amount you need (USD)",
+      "type": "integer",
+      "description": "Optional. Enables award-size fit and comparison against what prior winners actually received.",
+      "editor": "number",
+      "prefill": 250000
+    },
+    "canCostShare": {
+      "title": "Can you provide matching funds?",
+      "type": "boolean",
+      "description": "If false, opportunities requiring cost sharing are penalized heavily.",
+      "editor": "checkbox",
+      "default": true
+    },
+    "maxResults": {
+      "title": "Max opportunities to return",
+      "type": "integer",
+      "editor": "number",
+      "default": 50,
+      "minimum": 1,
+      "maximum": 300
+    },
+    "minDaysToApply": {
+      "title": "Minimum days needed to prepare a submission",
+      "type": "integer",
+      "description": "Opportunities closing sooner than this are flagged as unrealistically tight.",
+      "editor": "number",
+      "default": 14
+    },
+    "includeUnrestricted": {
+      "title": "Include unrestricted opportunities",
+      "type": "boolean",
+      "description": "Also return grants open to any entity type.",
+      "editor": "checkbox",
+      "default": true
+    },
+    "includeIneligible": {
+      "title": "Include opportunities you are NOT eligible for",
+      "type": "boolean",
+      "description": "Off by default. Turn on only to audit what is being filtered out.",
+      "editor": "checkbox",
+      "default": false
+    }
+  },
+  "required": ["organizationType"]
+}
