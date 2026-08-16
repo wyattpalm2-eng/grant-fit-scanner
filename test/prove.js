@@ -10,6 +10,7 @@
 
 import { scanGrants } from '../src/core.js';
 import { checkEligibility } from '../src/eligibility.js';
+import { matchTerms, expandTerm, broaderQueryFor } from '../src/vocabulary.js';
 
 const log = (...a) => console.log(...a);
 let failures = 0;
@@ -37,6 +38,39 @@ async function main() {
     '"Others (see text)" yields NEEDS_REVIEW, never ELIGIBLE');
   assert(checkEligibility('small_business', null).status === 'NEEDS_REVIEW',
     'Null applicantTypes yields NEEDS_REVIEW, never ELIGIBLE');
+
+  // ---------- Vocabulary: the words applicants use vs the words agencies use ----------
+  log('\n=== VOCABULARY TESTS ===');
+
+  // The measured failure this exists to fix: "behavioral health" matched 0 of 25.
+  const bh = matchTerms(['behavioral health'], 'Improving Mental Health Outcomes for Youth');
+  assert(bh.related.length === 1 && bh.related[0].via === 'mental health',
+    '"behavioral health" bridges to an agency\'s "mental health" wording');
+
+  const sh = matchTerms(['shelter'], 'Continuum of Care Homeless Assistance Program');
+  assert(sh.related.length === 1,
+    '"shelter" bridges to a "homeless" announcement');
+
+  const dir = matchTerms(['housing'], 'Affordable Housing Preservation');
+  assert(dir.direct.length === 1 && dir.related.length === 0,
+    'A direct hit is reported as direct, not bridged');
+
+  assert(matchTerms(['quantum tunnelling'], 'Affordable Housing Preservation').direct.length === 0 &&
+         matchTerms(['quantum tunnelling'], 'Affordable Housing Preservation').related.length === 0,
+    'An unrelated term matches nothing — the vocabulary does not match everything');
+
+  assert(expandTerm('reentry').includes('recidivism'),
+    'Expansion reaches across a cluster (reentry -> recidivism)');
+  assert(broaderQueryFor(['shelter']) === 'housing',
+    'A narrow term resolves to its broad cluster head for a second query');
+  assert(broaderQueryFor(['housing']) === null,
+    'An already-broad term skips the extra request');
+  // Regression: partial matching once resolved "health" to "mental health",
+  // which would widen a general query into a subtopic and shrink the pool.
+  assert(broaderQueryFor(['health']) === null,
+    'A general term is never "widened" into a narrower subtopic');
+  assert(broaderQueryFor(['solar']) === 'energy',
+    'A specific term still widens to its general cluster head');
 
   // ---------- Live: two different orgs must get different answers ----------
   log('\n=== LIVE SCAN: small business (health tech) ===');

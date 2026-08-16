@@ -1,4 +1,5 @@
 import { ELIGIBLE, NEEDS_REVIEW } from './eligibility.js';
+import { matchTerms } from './vocabulary.js';
 
 const DAY_MS = 86400000;
 
@@ -98,17 +99,27 @@ function scoreOpportunity(opp, profile, eligibility, incumbents, opts = {}) {
   const terms = (profile.focusKeywords || []).map((t) => String(t).toLowerCase().trim()).filter(Boolean);
   if (terms.length) {
     const haystack = [opp.title, opp.description, ...(opp.fundingCategories || [])]
-      .filter(Boolean).join(' ').toLowerCase();
-    const matched = terms.filter((t) => haystack.includes(t));
-    if (matched.length) {
-      add('Mission keywords matched', Math.min(20, matched.length * 7),
-        `Matched your terms: ${matched.join(', ')}.`);
+      .filter(Boolean).join(' ');
+    const { direct, related } = matchTerms(terms, haystack);
+
+    if (direct.length || related.length) {
+      // A direct hit is stronger evidence than a bridged one, and the evidence
+      // string names the bridging term so the match is auditable rather than
+      // asserted.
+      const points = Math.min(20, direct.length * 10 + related.length * 6);
+      const parts = [];
+      if (direct.length) parts.push(`Matched directly: ${direct.join(', ')}.`);
+      if (related.length) {
+        parts.push(`Matched via related funding language: ${
+          related.map((r) => `"${r.term}" → "${r.via}"`).join(', ')}.`);
+      }
+      add('Mission alignment', points, parts.join(' '));
     } else {
-      add('No mission keywords matched', -10,
-        `None of your terms (${terms.join(', ')}) appear in the title, description, or category.`);
+      add('No mission alignment found', -10,
+        `Neither your terms (${terms.join(', ')}) nor their common funding synonyms appear in the title, description, or category.`);
     }
   } else {
-    add('Mission alignment not evaluated', 0, 'No focusKeywords supplied.');
+    add('Mission alignment not evaluated', 0, 'No focus keywords supplied.');
   }
 
   // --- Competition signal (facts from prior federal awards) ---

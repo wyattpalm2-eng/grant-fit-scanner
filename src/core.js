@@ -2,6 +2,7 @@ import { searchOpportunities, fetchOpportunity } from './grantsgov.js';
 import { checkEligibility, ORG_TYPE_TO_CODE, INELIGIBLE } from './eligibility.js';
 import { getIncumbents } from './incumbents.js';
 import { scoreOpportunity } from './score.js';
+import { searchQueryFor, broaderQueryFor } from './vocabulary.js';
 
 /** Run `fn` over `items` with bounded concurrency so we stay polite to federal APIs. */
 async function mapLimit(items, limit, fn) {
@@ -42,7 +43,10 @@ async function scanGrants(profile, opts = {}) {
     );
   }
 
-  const keyword = (profile.focusKeywords || []).join(' ').trim() || profile.searchKeyword || '';
+  // Grants.gov ANDs the words in a query, so joining several keywords starves
+  // the candidate pool before scoring ever runs. Send one broad term and let
+  // the vocabulary-aware matcher do the discrimination locally.
+  const keyword = searchQueryFor(profile.focusKeywords) || profile.searchKeyword || '';
 
   // Filter server-side by the org's own eligibility code so we never pay to
   // download opportunities the organization is barred from.
@@ -66,6 +70,16 @@ async function scanGrants(profile, opts = {}) {
     const unrestricted = await searchOpportunities({ ...searchOpts, eligibilityCode: '99' });
     const seen = new Set(primary.map((h) => String(h.id)));
     hits = primary.concat(unrestricted.filter((h) => !seen.has(String(h.id))));
+  }
+
+  // A narrow term starves the pool before local matching can help. Run the
+  // cluster's broad term as a second query and merge; scoring still decides fit.
+  const broader = broaderQueryFor(profile.focusKeywords);
+  if (broader) {
+    log(`Widening search: "${keyword}" is narrow, also searching "${broader}"...`);
+    const extra = await searchOpportunities({ ...searchOpts, keyword: broader, eligibilityCode: myCode });
+    const seen = new Set(hits.map((h) => String(h.id)));
+    hits = hits.concat(extra.filter((h) => !seen.has(String(h.id))));
   }
 
   log(`Found ${hits.length} candidate opportunities. Fetching full records...`);
