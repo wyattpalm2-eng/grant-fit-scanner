@@ -1,0 +1,40 @@
+:root{--ground:#f7f9f9;--surface:#fff;--ink:#111a1b;--muted:#57696c;--line:#dbe4e5;
+  --accent:#0e7c86;--accent-soft:#e4f1f2;--soon:#9b3b3b;--soon-bg:#f8e9e9;
+  --fc:#5b4a8a;--fc-bg:#eeeaf7}
+@media(prefers-color-scheme:dark){:root{--ground:#0d1315;--surface:#141d1f;--ink:#e4ecec;
+  --muted:#8fa3a6;--line:#243133;--accent:#4bb8c1;--accent-soft:#122f2f;
+  --soon:#e08a8a;--soon-bg:#2c1a1a;--fc:#b3a4e0;--fc-bg:#221d33}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font:16px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:820px;margin:0 auto;padding:34px 20px 70px}
+.crumb{font-size:13px;color:var(--muted);margin-bottom:16px}
+.crumb a{color:var(--accent)}
+h1{font-size:clamp(25px,4vw,34px);line-height:1.15;letter-spacing:-.02em;margin:0 0 12px;text-wrap:balance}
+h2{font-size:20px;letter-spacing:-.01em;margin:34px 0 12px;padding-top:20px;border-top:1px solid var(--line)}
+h3{font-size:16.5px;margin:0 0 4px;line-height:1.35}
+h3 a{color:var(--ink);text-decoration:none}
+h3 a:hover{color:var(--accent);text-decoration:underline}
+.lede{font-size:17px;color:var(--muted);margin:0 0 20px}
+.lede b,p b{color:var(--ink)}
+.cta-box{background:var(--accent-soft);border-radius:10px;padding:16px 18px;margin:0 0 8px}
+.cta-box p{margin:0 0 10px;font-size:15px}
+.cta-box p:last-child{margin:0}
+a.cta{display:inline-block;background:var(--accent);color:var(--ground);padding:10px 16px;
+  border-radius:7px;text-decoration:none;font-weight:600;font-size:15px}
+.opp{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:15px 17px;margin-bottom:11px}
+.meta{font-size:13.5px;color:var(--muted);margin:0 0 9px}
+.tag{display:inline-block;font-size:11.5px;padding:2px 8px;border-radius:4px;
+  background:var(--line);color:var(--muted);margin-left:6px;white-space:nowrap}
+.tag.soon{background:var(--soon-bg);color:var(--soon);font-weight:600}
+.tag.forecast{background:var(--fc-bg);color:var(--fc);font-weight:600}
+.facts{margin:0;padding-left:18px;font-size:14px;color:var(--muted)}
+.facts li{margin-bottom:3px}
+.facts b{color:var(--ink)}
+ul.codes,ul.links{padding-left:18px;font-size:15px}
+ul.codes li,ul.links li{margin-bottom:5px}
+ul.links a{color:var(--accent)}
+code{font:13px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  background:var(--line);padding:1px 5px;border-radius:3px}
+footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-size:13.5px;color:var(--muted)}
+footer a{color:var(--accent)}
